@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Root>
+<Part> 
+    <Description>Инвентаризация</Description>
+    <Version>1.3</Version>
+</Part>
+<Configuration>
+    <Service>10.124.2.210</Service>
+    <Enable>1</Enable>
+</Configuration >
+</Root>

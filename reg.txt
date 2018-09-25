@@ -1,0 +1,10 @@
+convert.ps1
+get-sql-version.ps1
+Get-UserSession.ps1
+get-version_sqlserver v4.ps1
+get-version_sqlserver-mod.ps1
+get-version_sqlserver.ps1
+reg.txt
+test.ps1
+test_ping.ps1
+test_ping_2.ps1
