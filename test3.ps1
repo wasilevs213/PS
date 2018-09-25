@@ -61,5 +61,6 @@ Write-Host $ObjJSON
 $LocalInfo = GetLocalInfo 
 Write-Host $LocalInfo.gettype().fullname
 
+write-host 'test'
 
 ConvertPSObjTo $LocalInfo
