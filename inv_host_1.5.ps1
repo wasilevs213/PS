@@ -14,12 +14,14 @@ function GetLocalInfo {
     $host_name = 'localhost'
     $cur_host = Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter IPEnabled=$true -ComputerName $host_name | Select-Object -Property [a-z]* -ExcludeProperty IPX*,WINS*
     $Propertys = @{}
-    $Propertys.IPaddress = $cur_host.IPAddress[0]
-    $Propertys.MACAddress = $cur_host.MACAddress
-    $Propertys.DNSHostName = $cur_host.DNSHostName
-    $Propertys.IPSubnet = $cur_host.IPSubnet[0]
+    $Propertys.Version          = $Global:Version
+    $Propertys.Date             = [string]$(get-date -format F)
+    $Propertys.IPaddress        = $cur_host.IPAddress[0]
+    $Propertys.MACAddress       = $cur_host.MACAddress
+    $Propertys.DNSHostName      = $cur_host.DNSHostName
+    $Propertys.IPSubnet         = $cur_host.IPSubnet[0]
     $Propertys.DefaultIPGateway = $cur_host.DefaultIPGateway[0]
-    $Propertys.DNSDomain = $cur_host.DNSDomain
+    $Propertys.DNSDomain        = $cur_host.DNSDomain
     $Propertys
 #    $CustomObject = New-Object -TypeName PSObject -Prop $Propertys
 #    $CustomObject | Select-Object IPAddress, IPSubnet, MACAddress, DNSHostName, DefaultIPGateway, DNSDomain
@@ -166,38 +168,46 @@ function ConvertFrom-Json20([object] $item){
     return ,$ps_js.DeserializeObject($item)
 } 
 
-[string]$EanbleScript = GetConfiguration
-if ([int]$EanbleScript -eq $true) {
-    $LocalInfo = GetLocalInfo
-    Write-Host $LocalInfo.gettype().fullname
-    Write-Host $LocalInfo
-    $ObjJSON = ConvertTo-Json20 $LocalInfo
-    write-host $ObjJSON
-    $ObjJSON = 'Test string.'
-    $ObjJSON | Set-Content $OutFileName 
-
-
-    OutLocalInfo $LocalInfo
-
-    #$mask_ip = $LocalInfo.MACAddress
-    $mask_ip = "255.255.255.248" ## temp mask
-    [string[]]$Address1 = Get-IPrange -ip $LocalInfo.IPAddress -mask $mask_ip ## temp
-
-    $H = ScanSubNet $Address1 $Timeout
-
-    Write-Host "All count: "  $Address1.count
-    write-host "Accessible hosts: " $H.count
-
-    foreach ($Key_1 in $H.Keys) {
+function OutListIPAddress ($Hosts) {
+    foreach ($Key_1 in $Hosts.Keys) {
         if ($Key_1 -eq $LocalInfo.IPAddress) {
             $Value1 = $LocalInfo.MACAddress
             Write-host "$Key_1 - $Value1"
         }
         else {
-            $Value1 = [string]$H[$Key_1]
+            $Value1 = [string]$Hosts[$Key_1]
             Write-host "$Key_1 - $Value1"
-       }
+        }
     }
+}
+
+[string]$EanbleScript = GetConfiguration
+if ([int]$EanbleScript -eq $true) {
+    $JSONStartStr = '{"LocalInfo": '
+    $JSONMidleStr = ', "ListIPAddress": '
+    $JSONEndStr   = '}'
+    $LocalInfo = GetLocalInfo
+    OutLocalInfo $LocalInfo
+    $JSONStartStr | Set-Content $OutFileName 
+    $ObjJSON = ConvertTo-Json20 $LocalInfo
+    $ObjJSON | Add-Content $OutFileName 
+    $JSONMidleStr | Add-Content $OutFileName 
+
+    #$mask_ip = $LocalInfo.MACAddress
+    $mask_ip = "255.255.255.248" ## temp mask
+    [string[]]$Address1 = Get-IPrange -ip $LocalInfo.IPAddress -mask $mask_ip ## temp
+
+    $Hosts = ScanSubNet $Address1 $Timeout
+
+    Write-Host "All count: "  $Address1.count
+    write-host "Accessible hosts: " $Hosts.count
+#    Write-Host $Hosts.gettype().fullname
+#    Write-Host $Hosts
+    $ObjJSON = ConvertTo-Json20 $Hosts
+    $ObjJSON | Add-Content $OutFileName 
+    $JSONEndStr | Add-Content $OutFileName 
+#    Write-Host '----------------------'
+    OutListIPAddress $Hosts
 }
 else {
     write-host "Script Disabled."
