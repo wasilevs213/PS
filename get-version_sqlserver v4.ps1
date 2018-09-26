@@ -1,2 +1,0 @@
-$sqlscript="cmd SQLCMD -S ""server"" -U $user -P $password -d ""database"" -i ""$datadir\$script"" -s ""|"" -h-1 -W -v StartDate=$startdate EndDate=$enddate >> ""$outputdir\$instkey_$datatype_$startdate-$enddate.txt"
-Invoke-command $sqlscript

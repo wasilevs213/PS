@@ -1,14 +1,13 @@
 # Описание
 # Скрипт работает через джобы в многопоточном режиме
-# Версия 1.4
-# Дата 19.09.2018
+# Версия 1.5
+# Дата 26.09.2018
 
-#[string]$global:known_host_ip= "0.0.0.0"
-#[string]$global:mask_ip = "0.0.0.0"
 $Global:Version = 0
 [int]$Threads = 5 ## количество потоков для пинговалки
 $Hosts = @{}
 [int]$Timeout = 1
+$OutFileName = 'InventOut.txt'
 
 function GetLocalInfo {
     #получить инфу о локальном хосте
@@ -24,22 +23,6 @@ function GetLocalInfo {
     $Propertys
 #    $CustomObject = New-Object -TypeName PSObject -Prop $Propertys
 #    $CustomObject | Select-Object IPAddress, IPSubnet, MACAddress, DNSHostName, DefaultIPGateway, DNSDomain
-} # end function GetLocalInfo
-
-function GetLocalInfo1 {
-    #получить инфу о локальном хосте
-    $host_name = 'localhost'
-    $cur_host = Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter IPEnabled=$true -ComputerName $host_name | Select-Object -Property [a-z]* -ExcludeProperty IPX*,WINS*
-#    $global:known_host_ip = $cur_host.IPAddress[0]
-#    $global:mask_ip = $cur_host.IPSubnet[0]
-    $CustomObject = New-Object PSObject
-    $CustomObject | Add-Member -type NoteProperty -name IPAddress -value $cur_host.IPAddress[0]
-    $CustomObject | Add-Member -type NoteProperty -name MACAddress -value $cur_host.MACAddress
-    $CustomObject | Add-Member -type NoteProperty -name DNSHostName -value $cur_host.DNSHostName
-    $CustomObject | Add-Member -type NoteProperty -name IPSubnet -value $cur_host.IPSubnet[0]
-    $CustomObject | Add-Member -type NoteProperty -name DefaultIPGateway -value $cur_host.DefaultIPGateway[0]
-    $CustomObject | Add-Member -type NoteProperty -name DNSDomain -value $cur_host.DNSDomain
-    $CustomObject | Select-Object IPAddress, IPSubnet, MACAddress, DNSHostName, DefaultIPGateway, DNSDomain
 } # end function GetLocalInfo
 
 function OutLocalInfo ($CurObject){
@@ -169,10 +152,33 @@ function GetConfiguration {
     return $ret
 }#end function
 
+function ConvertTo-Json20([object] $item){
+    add-type -assembly system.web.extensions
+    $ps_js=new-object system.web.script.serialization.javascriptSerializer
+    return ,$ps_js.Serialize($item)
+}
+
+function ConvertFrom-Json20([object] $item){ 
+    add-type -assembly system.web.extensions
+    $ps_js=new-object system.web.script.serialization.javascriptSerializer
+
+    #The comma operator is the array construction operator in PowerShell
+    return ,$ps_js.DeserializeObject($item)
+} 
+
 [string]$EanbleScript = GetConfiguration
 if ([int]$EanbleScript -eq $true) {
     $LocalInfo = GetLocalInfo
+    Write-Host $LocalInfo.gettype().fullname
+    Write-Host $LocalInfo
+    $ObjJSON = ConvertTo-Json20 $LocalInfo
+    write-host $ObjJSON
+    $ObjJSON = 'Test string.'
+    $ObjJSON | Set-Content $OutFileName 
+
+
     OutLocalInfo $LocalInfo
+
     #$mask_ip = $LocalInfo.MACAddress
     $mask_ip = "255.255.255.248" ## temp mask
     [string[]]$Address1 = Get-IPrange -ip $LocalInfo.IPAddress -mask $mask_ip ## temp
