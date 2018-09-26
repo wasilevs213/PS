@@ -1,13 +1,13 @@
 $host_name = 'localhost'
-$global:known_host_ip
-$global:mask_ip
-
+#$global:known_host_ip
+#$global:mask_ip
+$OutFileName = 'InventOut.txt'
 function GetLocalInfo {
     #получить инфу о локальном хосте
     $host_name = 'localhost'
     $cur_host = Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter IPEnabled=$true -ComputerName $host_name | Select-Object -Property [a-z]* -ExcludeProperty IPX*,WINS*
-    $global:known_host_ip = $cur_host.IPAddress[0]
-    $global:mask_ip = $cur_host.IPSubnet[0]
+#    $global:known_host_ip = $cur_host.IPAddress[0]
+#    $global:mask_ip = $cur_host.IPSubnet[0]
     $Propertys = @{}
     $Propertys.IPaddress = $cur_host.IPAddress[0]
     $Propertys.MACAddress = $cur_host.MACAddress
@@ -48,19 +48,7 @@ function ConvertFrom-Json20([object] $item){
     return ,$ps_js.DeserializeObject($item)
 } 
 
-function ConvertPSObjTo ([object] $set1) {
-    foreach($item in $set1) {
-        Write-Host $item
-    }
-}
-
-$LinuxTestStart = @{body="IT WORKS!!!"; name1="Asdf"; value1="Zxxcvb"}
-$ObjJSON = ConvertTo-Json20 $LinuxTestStart
-Write-Host $ObjJSON
-
 $LocalInfo = GetLocalInfo 
-Write-Host $LocalInfo.gettype().fullname
-
-write-host 'test'
-
-ConvertPSObjTo $LocalInfo
+$ObjJSON = ConvertTo-Json20 $LocalInfo
+$ObjJSON | Set-Content $OutFileName 
+Write-Host $ObjJSON
