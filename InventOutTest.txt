@@ -1,0 +1,1 @@
+{"MACAddress":"4C:CC:6A:27:76:D4","IPSubnet":"255.255.252.0","DNSHostName":"R61TROITSKIY","DNSDomain":"main.russianpost.ru","IPaddress":"10.124.2.210","DefaultIPGateway":"10.124.1.3"}
