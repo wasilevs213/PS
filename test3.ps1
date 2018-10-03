@@ -1,13 +1,11 @@
 $host_name = 'localhost'
 #$global:known_host_ip
 #$global:mask_ip
-$OutFileName = 'InventOut.txt'
+$OutFileName = 'InventOutTest.txt'
 function GetLocalInfo {
     #получить инфу о локальном хосте
     $host_name = 'localhost'
     $cur_host = Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter IPEnabled=$true -ComputerName $host_name | Select-Object -Property [a-z]* -ExcludeProperty IPX*,WINS*
-#    $global:known_host_ip = $cur_host.IPAddress[0]
-#    $global:mask_ip = $cur_host.IPSubnet[0]
     $Propertys = @{}
     $Propertys.IPaddress = $cur_host.IPAddress[0]
     $Propertys.MACAddress = $cur_host.MACAddress
@@ -18,9 +16,6 @@ function GetLocalInfo {
     $Propertys
 #    $CustomObject = New-Object -TypeName PSObject -Prop $Propertys
 #    $CustomObject | Select-Object IPAddress, IPSubnet, MACAddress, DNSHostName, DefaultIPGateway, DNSDomain
-#    Write-Host $cur_host.IPAddress[0].gettype().fullname
-#    Write-Host $cur_host.IPSubnet[0].gettype().fullname
-    
 } # end function GetLocalInfo
 
 function OutLocalInfo ($CurObject){
@@ -52,3 +47,5 @@ $LocalInfo = GetLocalInfo
 $ObjJSON = ConvertTo-Json20 $LocalInfo
 $ObjJSON | Set-Content $OutFileName 
 Write-Host $ObjJSON
+$DebugPreference = 'Continue'
+Write-Debug 'Debug mode.'

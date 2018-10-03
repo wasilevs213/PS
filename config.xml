@@ -2,10 +2,11 @@
 <Root>
 <Part> 
     <Description>Инвентаризация</Description>
-    <Version>1.5</Version>
+    <Version>1.6</Version>
 </Part>
 <Configuration>
     <Service>10.124.2.210</Service>
     <Enable>1</Enable>
+    <Debug>1</Debug>
 </Configuration >
 </Root>

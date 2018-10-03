@@ -147,6 +147,10 @@ function GetConfiguration {
     if ([string]$obj.Root.Part.Version) {
         $Global:Version = [string]$obj.Root.Part.Version
     }
+
+    if ([string]$obj.Root.Part.Debug) {
+        $DebugPreference = 'Continue'
+    }
     $ret = 0
     if ([string]$obj.Root.Configuration.Enable) {
         $ret = [string]$obj.Root.Configuration.Enable
@@ -168,7 +172,7 @@ function ConvertFrom-Json20([object] $item){
     return ,$ps_js.DeserializeObject($item)
 } 
 
-function OutListIPAddress ($Hosts) {
+function OutListIPAddress1 ($Hosts) { #source
     foreach ($Key_1 in $Hosts.Keys) {
         if ($Key_1 -eq $LocalInfo.IPAddress) {
             $Value1 = $LocalInfo.MACAddress
@@ -178,6 +182,13 @@ function OutListIPAddress ($Hosts) {
             $Value1 = [string]$Hosts[$Key_1]
             Write-host "$Key_1 - $Value1"
         }
+    }
+}
+function OutListIPAddress ($Hosts) {
+#    $Hosts[$LocalInfo.IPAddress] = $LocalInfo.MACAddress
+    foreach ($Key_1 in $Hosts.Keys) {
+        $Value1 = [string]$Hosts[$Key_1]
+        Write-host "$Key_1 - $Value1"
     }
 }
 
@@ -192,6 +203,7 @@ if ([int]$EanbleScript -eq $true) {
     $ObjJSON = ConvertTo-Json20 $LocalInfo
     $ObjJSON | Add-Content $OutFileName 
     $JSONMidleStr | Add-Content $OutFileName 
+    
 
     #$mask_ip = $LocalInfo.MACAddress
     $mask_ip = "255.255.255.248" ## temp mask
@@ -203,10 +215,10 @@ if ([int]$EanbleScript -eq $true) {
     write-host "Accessible hosts: " $Hosts.count
 #    Write-Host $Hosts.gettype().fullname
 #    Write-Host $Hosts
+    $Hosts[$LocalInfo.IPAddress] = $LocalInfo.MACAddress
     $ObjJSON = ConvertTo-Json20 $Hosts
     $ObjJSON | Add-Content $OutFileName 
     $JSONEndStr | Add-Content $OutFileName 
-#    Write-Host '----------------------'
     OutListIPAddress $Hosts
 }
 else {
